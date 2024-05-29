@@ -1,15 +1,15 @@
 from sklearn.ensemble import RandomForestClassifier
 import autosklearn.classification
 from sklearn import metrics
-from sklearn.metrics import accuracy_score
 import numpy as np
-from mnist_dataset_setup import (#train_labels_600, train_images_600, test_labels_100, test_images_100)
-                                 train_images_6000, train_labels_6000, test_images_1000, test_labels_1000)
-                                 #train_images_12000, train_labels_12000, test_images_2000, test_labels_2000)
+from mnist_dataset_setup import (train_labels_600, train_images_600, test_labels_100, test_images_100,
+                                 train_images_6000, train_labels_6000, test_images_1000, test_labels_1000,
+                                 train_images_12000, train_labels_12000, test_images_2000, test_labels_2000)
 #import mlflow
 #import mlflow.sklearn
 #mlflow.sklearn.autolog()
 import neptune
+import matplotlib.pyplot as plt
 
 # Create AutoSklearn Classifier
 cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=120)
@@ -19,9 +19,9 @@ cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=1
 
 # Define datasets
 datasets = [
-    ("6000 Training / 1000 Test", train_images_6000, train_labels_6000, test_images_1000, test_labels_1000)
-    #("600 Training / 100 Test", train_images_600, train_labels_600, test_images_100, test_labels_100)
-    #("1200_Training / T200_Test", train_images_12000, train_labels_12000, test_images_2000, test_labels_2000)
+    ("6000 Training / 1000 Test", train_images_6000, train_labels_6000, test_images_1000, test_labels_1000),
+    ("600 Training / 100 Test", train_images_600, train_labels_600, test_images_100, test_labels_100),
+    ("1200_Training / T200_Test", train_images_12000, train_labels_12000, test_images_2000, test_labels_2000)
 ]
 
 #need to include distribution details
@@ -43,8 +43,10 @@ for dataset_name, train_images, train_labels, test_images, test_labels in datase
     predictions = cls.predict(test_images_np.reshape(-1, 28 * 28))
 
     # Evaluate the model
-    accuracy = accuracy_score(test_labels_np, predictions)
+    accuracy = metrics.accuracy_score(test_labels_np, predictions)  #for balanced data only
     test_f1_score = metrics.f1_score(test_labels_np, predictions, average='weighted')
+    roc_auc = metrics.roc_auc_score(test_labels_np, predictions) #for balanced data only
+    average_precision_score = metrics.average_precision_score(test_labels_np, predictions)
     test_metrics = (accuracy, test_f1_score)
 
     run = neptune.init_run(
@@ -52,11 +54,13 @@ for dataset_name, train_images, train_labels, test_images, test_labels in datase
         api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiI4ZGU0ODU0Yy1hNTIyLTRhYmYtODk5MC0wODUxYjEwZTM3YTcifQ==",
     )  # your credentials
 
-    params = {"train": 6000, "test": "1000"}
+    params = dataset_name
     run["parameters"] = params
 
     run["minst/acc"].append(accuracy)
     run["minst/f1_score"].append(test_f1_score)
+    run["minst/roc_auc"].append(roc_auc)
+    run["minst/avg_precision_score"].append(average_precision_score)
     run.stop()
 
 

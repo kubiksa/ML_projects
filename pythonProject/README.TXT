@@ -41,3 +41,10 @@ Go to "tools" and select "Create Desktop Entry" so that you'll have a shortcut o
 
 
 --- also needed conda install h5py and pip install tensorflow
+
+
+Next I decided to use a tool which would help track experiment and training data lineage.
+Installed MLFlow, but the first time I tried to run it, I got an error: ImportError: cannot import name 'pinv2' from 'scipy.linalg'
+Upon research figured out pinv2 is obsolete and upgrading to scikit learn 1.0 fixes the issue.
+Due to AutoML not working with the later scikit learn versions very well, I decided to look for something else open source,
+Installed Neptune.
