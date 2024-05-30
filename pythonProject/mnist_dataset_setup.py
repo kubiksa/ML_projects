@@ -1,4 +1,5 @@
 import tensorflow as tf
+from sklearn.preprocessing import label_binarize
 
 # Load the MNIST dataset
 mnist = tf.keras.datasets.mnist
@@ -14,7 +15,11 @@ def create_subset(images, labels, num_samples):
     selected_indices = shuffled_indices[:num_samples]
     return tf.gather(images, selected_indices), tf.gather(labels, selected_indices)
 
-# Create subsets with 6,000 training and 1,000 test samples
+# Create subsets with 12,000 training and 2,000 test samples
+train_images_24000, train_labels_24000 = create_subset(train_images_full, train_labels_full, 24000)
+test_images_4000, test_labels_4000 = create_subset(test_images_full, test_labels_full, 4000)
+
+# Create subsets with 12,000 training and 2,000 test samples
 train_images_12000, train_labels_12000 = create_subset(train_images_full, train_labels_full, 12000)
 test_images_2000, test_labels_2000 = create_subset(test_images_full, test_labels_full, 2000)
 
@@ -26,3 +31,5 @@ test_images_1000, test_labels_1000 = create_subset(test_images_full, test_labels
 train_images_600, train_labels_600 = create_subset(train_images_full, train_labels_full, 600)
 test_images_100, test_labels_100 = create_subset(test_images_full, test_labels_full, 100)
 
+train_images_full, train_labels_full = (train_images_full, train_labels_full)
+test_images_full, test_labels_full = (test_images_full, test_labels_full)
