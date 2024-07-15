@@ -5,11 +5,13 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import numpy as np
 import pandas as pd
-from mnist_dataset_setup import (train_labels_600, train_images_600, test_labels_100, test_images_100)
+from mnist_dataset_setup import (train_images_24000, train_labels_24000, test_images_4000, test_labels_4000)
+#train_labels_6000, train_images_6000, test_labels_1000, test_images_1000)
+#train_labels_600, train_images_600, test_labels_100, test_images_100)
 #(train_images_24000, train_labels_24000, test_images_4000, test_labels_4000))
                             #(train_images_full, train_labels_full, test_images_full, test_labels_full)
 
-         #               train_labels_600, train_images_600, test_labels_100, test_images_100
+         #               train_labels_6000, train_images_6000, test_labels_1000, test_images_1000
          #train_images_12000, train_labels_12000, test_images_2000, test_labels_2000
 
 
@@ -18,17 +20,16 @@ import neptune
 import matplotlib.pyplot as plt
 
 # Create AutoSklearn Classifier
-cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=120)
+cls = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=1500)
 
 # Define datasets
 datasets = [
-    #("6000 Training / 1000 Test", train_images_6000, train_labels_6000, test_images_1000, test_labels_1000)
-    ("600 Training / 100 Test", train_images_600, train_labels_600, test_images_100, test_labels_100)
-    #("12000_Training / 2000_Test", train_images_12000, train_labels_12000, test_images_2000, test_labels_2000)
-    #("24000_Training / 4000_Test", train_images_24000, train_labels_24000, test_images_4000, test_labels_4000)
+    #("6000Training_1000Test", train_images_6000, train_labels_6000, test_images_1000, test_labels_1000)
+    #("600Training_100Test", train_images_600, train_labels_600, test_images_100, test_labels_100)
+    #("12000Training_2000Test", train_images_12000, train_labels_12000, test_images_2000, test_labels_2000)
+    ("24000Training_4000Test", train_images_24000, train_labels_24000, test_images_4000, test_labels_4000)
     #("full_dataset", train_images_full, train_labels_full, test_images_full, test_labels_full)
 ]
-
 
 # Train and evaluate models on each dataset
 for dataset_name, train_images, train_labels, test_images, test_labels in datasets:
@@ -53,10 +54,10 @@ for dataset_name, train_images, train_labels, test_images, test_labels in datase
     y_train = train_labels_np  #1-D
     y_test = test_labels_np   #1-D
 
-    train_x_df = pd.DataFrame(X_train).to_csv(f'{dataset_name}_x_train', index=False)
-    train_y_df = pd.DataFrame(y_train).to_csv(f'{dataset_name}_y_train', index=False)
-    test_x_df = pd.DataFrame(X_test).to_csv(f'{dataset_name}_x_test', index=False)
-    test_y_df = pd.DataFrame(y_test).to_csv(f'{dataset_name}_y_test', index=False)
+    train_x_df = pd.DataFrame(X_train).to_csv(dataset_name+'_x_train', index=False)
+    train_y_df = pd.DataFrame(y_train).to_csv(dataset_name+'_y_train', index=False)
+    test_x_df = pd.DataFrame(X_test).to_csv(dataset_name+'_x_test', index=False)
+    test_y_df = pd.DataFrame(y_test).to_csv(dataset_name+'_y_test', index=False)
 
     # Binarize the output for multi-class ROC AUC and average precision
     y_train_bin = label_binarize(y_train, classes=range(10))
@@ -87,10 +88,8 @@ for dataset_name, train_images, train_labels, test_images, test_labels in datase
     # Access the final ensemble model's components
     ensemble_models_with_weights = cls.get_models_with_weights()
 
-
     # Access the first model in the ensemble
     model_pipeline = ensemble_models_with_weights[0][1]
-
 
     # Inspect the pipeline steps
     #pipeline_steps = model_pipeline.named_steps
